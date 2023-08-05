@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { actionCreators } from "../store";
+import { add } from "../store";
 import ToDo from "../components/ToDo";
 
 // 그렇다면 Redux를 React 환경에서 사용할 때는 어떠한 방식으로 사용되는가?
@@ -47,7 +47,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   // props인 addToDo 함수는 매개변수로 text를 받으면 store에 등록되어 있는 Reducer 함수를 작동시키게 한다
   return {
-    addToDo: (text) => dispatch(actionCreators.addToDo(text)),
+    addToDo: (text) => dispatch(add(text)),
   };
 }
 
