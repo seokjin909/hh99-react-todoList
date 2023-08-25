@@ -1,41 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { connect } from "react-redux";
 import { add } from "../store";
 import ToDo from "../components/ToDo";
+import styled from "styled-components";
 
-// 그렇다면 Redux를 React 환경에서 사용할 때는 어떠한 방식으로 사용되는가?
+const padding = "1em";
+const Section = styled.section`
+  color: white;
+  padding: ${padding};
+  background: ${(props) => props.$background};
+`;
 
-// Redux의 getState() 함수를 대신해서 Connect() 함수를 사용해서
-// Store에 저장된 데이터를 props의 형태로 데이터가 필요한 컴포넌트로 전달하고
-// 마찬가지로 getState() 함수처럼 dispatch(), 즉 데이터를 Store에 전달하는 함수 또한 Store.js에 작성해놓은
-// 함수를 props로 전달받아서 해당 컴포넌트에서 사용하는 방식으로 처리한다.
+const Button = styled.button`
+  padding: 5px;
+  background-color: royalblue;
+  color: white;
+  border-radius: 5px;
+`;
+
+const Container = styled.div`
+  max-width: 1200px;
+  min-width: 800px;
+  margin: 0 auto;
+`;
+
+const Form = styled.form`
+  height: 50px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  border: 1px solid grey;
+  margin-bottom: 20px;
+`;
+
+const Input = styled.input`
+  margin: 5px 5px 0 0;
+  border-radius: 5px;
+  padding: 2px;
+`;
+
+const List = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 const Home = ({ toDos, addToDo }) => {
-  // toDos = store.getState();
-  // addToDo = store.dispatch();
+  const [toDo, setToDo] = useState({
+    id: 2,
+    title: "",
+    body: "",
+    isDone: false,
+  });
 
-  const [text, setText] = useState("");
-  function onChange(e) {
-    setText(e.target.value);
-  }
+  const onChange = useCallback(
+    (event) => {
+      const insertObj = {
+        ...toDo,
+        [event.target.name]: event.target.value,
+      };
+      setToDo(insertObj);
+    },
+    [toDo]
+  );
 
-  function onSubmit(e) {
+  const onSubmit = (e) => {
     e.preventDefault();
-    addToDo(text);
-    setText("");
-  }
+    addToDo(toDo);
+    setToDo({
+      id: toDo.id + 1,
+      title: "",
+      body: "",
+      isDone: false,
+    });
+  };
+
   return (
-    <>
-      <h1>To Do</h1>
-      <form onSubmit={onSubmit}>
-        <input type="text" value={text} onChange={onChange} />
-        <button>Add</button>
-      </form>
-      <ul>
-        {toDos.map((toDo) => (
-          <ToDo {...toDo} key={toDo.id} />
-        ))}
-      </ul>
-    </>
+    <Container>
+      <h1>My Todo List</h1>
+      <Form onSubmit={onSubmit}>
+        <div>
+          <label>제목 : </label>
+          <Input type="text" name="title" value={toDo.title} onChange={onChange} />
+          <label>내용 : </label>
+          <Input type="text" name="body" value={toDo.body} onChange={onChange} />
+        </div>
+        <Button>추가하기</Button>
+      </Form>
+      <Section $background="red">Working 🔥</Section>
+      <List>{toDos.map((toDo) => (toDo.isDone ? <></> : <ToDo {...toDo} key={toDo.id} />))}</List>
+      <Section $background="royalblue">Done 🎉</Section>
+      <List>{toDos.map((toDo) => (!toDo.isDone ? <></> : <ToDo {...toDo} key={toDo.id} />))}</List>
+    </Container>
   );
 };
 
@@ -47,7 +105,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   // props인 addToDo 함수는 매개변수로 text를 받으면 store에 등록되어 있는 Reducer 함수를 작동시키게 한다
   return {
-    addToDo: (text) => dispatch(add(text)),
+    addToDo: (toDo) => dispatch(add(toDo)),
   };
 }
 
