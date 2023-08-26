@@ -4,6 +4,76 @@ import { add } from "../store";
 import ToDo from "../components/ToDo";
 import styled from "styled-components";
 
+const Home = ({ toDos, addToDo }) => {
+  const [toDo, setToDo] = useState({
+    id: parseInt(`${new Date().getTime()}`),
+    title: "",
+    body: "",
+    isDone: false,
+  });
+
+  const onChange = useCallback(
+    (event) => {
+      const insertObj = {
+        ...toDo,
+        [event.target.name]: event.target.value,
+      };
+      setToDo(insertObj);
+    },
+    [toDo]
+  );
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (toDo.title === "") {
+      alert("제목을 입력하세요!");
+      return;
+    } else if (toDo.body === "") {
+      alert("내용을 입력하세요!");
+      return;
+    }
+
+    addToDo(toDo);
+    setToDo({
+      id: parseInt(`${new Date().getTime()}`),
+      title: "",
+      body: "",
+      isDone: false,
+    });
+    alert("등록 완료 🎉");
+  };
+
+  return (
+    <Container>
+      <h1>My Todo List</h1>
+      <Form onSubmit={onSubmit}>
+        <div>
+          <label>제목 : </label>
+          <Input type="text" name="title" value={toDo.title} onChange={onChange} />
+          <label>내용 : </label>
+          <Input type="text" name="body" value={toDo.body} onChange={onChange} />
+        </div>
+        <Button>추가하기</Button>
+      </Form>
+      <Section $background="red">Working 🔥</Section>
+      <List>{toDos.map((toDo) => (toDo.isDone ? <div key={toDo.id}></div> : <ToDo {...toDo} key={toDo.id} />))}</List>
+      <Section $background="royalblue">Done 🎉</Section>
+      <List>{toDos.map((toDo) => (toDo.isDone ? <ToDo {...toDo} key={toDo.id} /> : <div key={toDo.id}></div>))}</List>
+    </Container>
+  );
+};
+
+function mapStateToProps(state) {
+  return { toDos: state };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    addToDo: (toDo) => dispatch(add(toDo)),
+  };
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+
 const padding = "1em";
 const Section = styled.section`
   color: white;
@@ -46,68 +116,3 @@ const List = styled.div`
   flex-direction: row;
   align-items: center;
 `;
-
-const Home = ({ toDos, addToDo }) => {
-  const [toDo, setToDo] = useState({
-    id: 2,
-    title: "",
-    body: "",
-    isDone: false,
-  });
-
-  const onChange = useCallback(
-    (event) => {
-      const insertObj = {
-        ...toDo,
-        [event.target.name]: event.target.value,
-      };
-      setToDo(insertObj);
-    },
-    [toDo]
-  );
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    addToDo(toDo);
-    setToDo({
-      id: toDo.id + 1,
-      title: "",
-      body: "",
-      isDone: false,
-    });
-  };
-
-  return (
-    <Container>
-      <h1>My Todo List</h1>
-      <Form onSubmit={onSubmit}>
-        <div>
-          <label>제목 : </label>
-          <Input type="text" name="title" value={toDo.title} onChange={onChange} />
-          <label>내용 : </label>
-          <Input type="text" name="body" value={toDo.body} onChange={onChange} />
-        </div>
-        <Button>추가하기</Button>
-      </Form>
-      <Section $background="red">Working 🔥</Section>
-      <List>{toDos.map((toDo) => (toDo.isDone ? <></> : <ToDo {...toDo} key={toDo.id} />))}</List>
-      <Section $background="royalblue">Done 🎉</Section>
-      <List>{toDos.map((toDo) => (!toDo.isDone ? <></> : <ToDo {...toDo} key={toDo.id} />))}</List>
-    </Container>
-  );
-};
-
-function mapStateToProps(state) {
-  // props인 toDos로 Store에 저장된 State를 담도록 하고
-  return { toDos: state };
-}
-
-function mapDispatchToProps(dispatch) {
-  // props인 addToDo 함수는 매개변수로 text를 받으면 store에 등록되어 있는 Reducer 함수를 작동시키게 한다
-  return {
-    addToDo: (toDo) => dispatch(add(toDo)),
-  };
-}
-
-// connect 함수는 Store에 저장된 State를 받는 함수와 Store로 전달할 함수를 필요로한다.
-export default connect(mapStateToProps, mapDispatchToProps)(Home);

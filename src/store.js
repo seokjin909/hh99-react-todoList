@@ -1,4 +1,3 @@
-// import { createStore } from "redux";
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 
 const toDos = createSlice({
@@ -19,6 +18,7 @@ const toDos = createSlice({
   ],
   reducers: {
     add: (state, action) => {
+      console.log(action.payload);
       state.push({
         id: action.payload.id,
         title: action.payload.title,
@@ -28,7 +28,8 @@ const toDos = createSlice({
     },
     remove: (state, action) => state.filter((todo) => todo.id !== action.payload),
     toggleStatusTodo: (state, action) => {
-      state[action.payload].isDone = !state[action.payload].isDone;
+      const getTodoById = state.filter((toDo) => toDo.id === action.payload);
+      getTodoById[0].isDone = !getTodoById[0].isDone;
     },
   },
 });
